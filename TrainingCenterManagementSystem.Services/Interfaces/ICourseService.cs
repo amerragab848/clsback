@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 using TrainingCenterManagementSystem.Core.Dtos;
+using TrainingCenterManagementSystem.Infrastructure.Data;
 
 namespace TrainingCenterManagementSystem.Services.Interfaces
 {
@@ -9,7 +10,7 @@ namespace TrainingCenterManagementSystem.Services.Interfaces
     {
         CoursesDTO GetCourseById(long id);
         List<CoursesDTO> GetAllCourse();
-         System.Threading.Tasks.Task< List<CoursesDTO>> FilterCoursesAsync(CourseFilterDto coursesDTO);
+        List<CoursesDTO> FilterCoursesAsync(CourseFilterDto coursesDTO);
         List<CoursesDTO> GetAllCourse(int pageNumber,int pageSize);
         CoursesDTO AddCourse(CoursesDTO entity);
         void UpdateCourse(CoursesDTO entity);

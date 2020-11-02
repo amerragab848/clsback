@@ -2,7 +2,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using TrainingCenterManagementSystem.Core.Dtos;
+using TrainingCenterManagementSystem.Infrastructure.Data;
 using TrainingCenterManagementSystem.Infrastructure.Interfaces;
 using TrainingCenterManagementSystem.Services.Interfaces;
 
@@ -37,42 +39,82 @@ namespace TrainingCenterManagementSystem.Services.Implementation
             return course;
         }
 
-        public async System.Threading.Tasks.Task<List<CoursesDTO>> FilterCoursesAsync(CourseFilterDto coursesDTO)
+        public List<CoursesDTO> FilterCoursesAsync(CourseFilterDto coursesDTO)
         {
-            var course = repository.GetAll().AsQueryable();
-
-            if (!string.IsNullOrEmpty(coursesDTO.Name) || !string.IsNullOrEmpty(coursesDTO.Vendor) || !string.IsNullOrEmpty(coursesDTO.Material) 
-                || !string.IsNullOrEmpty(coursesDTO.Exam) || !string.IsNullOrEmpty(coursesDTO.DeliveryType) || !string.IsNullOrEmpty(coursesDTO.Lab))
+           // coursesDTO.Vendor = "vendor1";
+            IEnumerable<CoursesDTO> query= new List<CoursesDTO>() ;
+            if (!string.IsNullOrEmpty(coursesDTO.Name) )  
             {
-                course.Where(c => c.Name.Contains(coursesDTO.Name) || c.Vendor.Name.Contains(coursesDTO.Vendor)
-
-            || c.Material.Name.Contains(coursesDTO.Material) || c.Exam.Name.Contains(coursesDTO.Exam) || c.DeliveryType.Name.Contains(coursesDTO.DeliveryType)
-            || c.Lab.Name.Contains(coursesDTO.Lab));
+                query= repository.GetAllCourses().Where(c => c.Name.ToLower().Contains(coursesDTO.Name)) ;
+               
             }
+            if (!string.IsNullOrEmpty(coursesDTO.Vendor)&& !string.IsNullOrEmpty(coursesDTO.Name))
+            {
+                query = repository.GetAllCourses().Where(c => c.Vendor.Name.ToLower().Contains(coursesDTO.Vendor.ToLower())
+                &&  c.Name.ToLower().Contains(coursesDTO.Name)).ToList();
+            }
+            if (!string.IsNullOrEmpty(coursesDTO.Material)&& !string.IsNullOrEmpty(coursesDTO.Vendor) 
+                && !string.IsNullOrEmpty(coursesDTO.Name))
+            {
+                query = repository.GetAllCourses().Where(c => c.Material.Name.ToLower().Contains(coursesDTO.Material.ToLower())&&
+                 c.Vendor.Name.ToLower().Contains(coursesDTO.Vendor.ToLower())
+                && c.Name.ToLower().Contains(coursesDTO.Name)).ToList();
+            }
+            if (!string.IsNullOrEmpty(coursesDTO.Exam)&& !string.IsNullOrEmpty(coursesDTO.Material) && !string.IsNullOrEmpty(coursesDTO.Vendor)
+                && !string.IsNullOrEmpty(coursesDTO.Name))
+            {
+                query = repository.GetAllCourses().Where(c => c.Exam.Name.ToLower().Contains(coursesDTO.Exam.ToLower())&&
+                c.Material.Name.ToLower().Contains(coursesDTO.Material.ToLower()) &&
+                 c.Vendor.Name.ToLower().Contains(coursesDTO.Vendor.ToLower())
+                && c.Name.ToLower().Contains(coursesDTO.Name)).ToList();
+            }
+            if (!string.IsNullOrEmpty(coursesDTO.DeliveryType)&& !string.IsNullOrEmpty(coursesDTO.Exam) && !string.IsNullOrEmpty(coursesDTO.Material) && !string.IsNullOrEmpty(coursesDTO.Vendor)
+                && !string.IsNullOrEmpty(coursesDTO.Name))
+            {
+                query = repository.GetAllCourses().Where(c => c.DeliveryType.Name.ToLower().Contains(coursesDTO.DeliveryType.ToLower())&&
+                c.Exam.Name.ToLower().Contains(coursesDTO.Exam.ToLower()) &&
+                c.Material.Name.ToLower().Contains(coursesDTO.Material.ToLower()) &&
+                 c.Vendor.Name.ToLower().Contains(coursesDTO.Vendor.ToLower())
+                && c.Name.ToLower().Contains(coursesDTO.Name)).ToList();
+            }
+            if (!string.IsNullOrEmpty(coursesDTO.Lab)&& !string.IsNullOrEmpty(coursesDTO.DeliveryType) && !string.IsNullOrEmpty(coursesDTO.Exam) && !string.IsNullOrEmpty(coursesDTO.Material) && !string.IsNullOrEmpty(coursesDTO.Vendor)
+                && !string.IsNullOrEmpty(coursesDTO.Name))
+            {
+                query = repository.GetAllCourses().Where(c => c.Lab.Name.ToLower().Contains(coursesDTO.Lab.ToLower())&&
+                 c.DeliveryType.Name.ToLower().Contains(coursesDTO.DeliveryType.ToLower()) &&
+                c.Exam.Name.ToLower().Contains(coursesDTO.Exam.ToLower()) &&
+                c.Material.Name.ToLower().Contains(coursesDTO.Material.ToLower()) &&
+                 c.Vendor.Name.ToLower().Contains(coursesDTO.Vendor.ToLower())
+                && c.Name.ToLower().Contains(coursesDTO.Name)).ToList();
+            }
+
+
+
+
 
             switch (coursesDTO.SortOrder)
             {
                 case "Lab":
-                    course = course.OrderByDescending(s => s.Name);
+                    query.OrderByDescending(s => s.Name).ToList();
                     break;
                 case "Vendor":
-                    course = course.OrderByDescending(s => s.Vendor.Name);
+                    query.OrderByDescending(s => s.Vendor.Name).ToList();
                     break;
                 case "Material":
-                    course = course.OrderByDescending(s => s.Material.Name);
+                    query.OrderByDescending(s => s.Material.Name).ToList();
                     break;
                 case "Exam":
-                    course = course.OrderByDescending(s => s.Exam.Name);
+                    query.OrderByDescending(s => s.Exam.Name).ToList();
                     break;
                 case "DeliveryType":
-                    course = course.OrderByDescending(s => s.DeliveryType.Name);
+                    query.OrderByDescending(s => s.DeliveryType.Name).ToList();
                     break;
                 default:
-                    course = course.OrderByDescending(s => s.Name);
+                    query.OrderByDescending(s => s.Name).ToList();
                     break;
             }
-            int count = course.Count();
-            var res = await PaginatedList<CoursesDTO>.CreateAsync(course.AsNoTracking(), coursesDTO.PagNumber ?? 1, coursesDTO.Pagesize);
+            int count = query.Count();
+            var res =  PaginatedList<CoursesDTO>.Create(query.AsQueryable().AsNoTracking(), coursesDTO.PagNumber ?? 1, coursesDTO.Pagesize);
 
 
             return res;
@@ -81,7 +123,7 @@ namespace TrainingCenterManagementSystem.Services.Implementation
         public List<CoursesDTO> GetAllCourse()
         {
             var courses = repository.GetAll();
-            return courses;
+            return courses.ToList();
         }
 
         public List<CoursesDTO> GetAllCourse(int pageNumber, int pageSize)
@@ -101,6 +143,8 @@ namespace TrainingCenterManagementSystem.Services.Implementation
                 repository.Update(entity);
         }
 
+       
 
+      
     }
 }

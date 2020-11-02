@@ -253,6 +253,54 @@ namespace TrainingCenterManagementSystem.Infrastructure.Repositories
 
             }).ToList();
         }
+
+        public IQueryable<CoursesDTO> GetAllCourses()
+        {
+
+            return _TMSDbContext.Courses.Select(c => new CoursesDTO
+            {
+                Id = c.Id,
+                Name = c.Name,
+                Exam = new ExamsDTO
+                {
+                    Name = c.Exam.Name,
+                    Id = c.Exam.Id,
+
+                },
+                CourseCategory = new CourseCategoriesDTO
+                {
+                    Name = c.CourseCategory.Name,
+                    Id = c.CourseCategory.Id
+                },
+                Lab = new LabsDTO
+                {
+                    Name = c.Lab.Name,
+                    Id = c.Lab.Id
+                },
+                CourseType = new PriceTypesDTO
+                {
+                    Name = c.CourseType.Name,
+                    Id = c.CourseType.Id
+                },
+                Material = new MaterialsDTO
+                {
+                    Name = c.Material.Name,
+                    Id = c.Material.Id
+                },
+                DeliveryType = new DeleveryTypesDTO
+                {
+                    Name = c.DeliveryType.Name,
+                    Id = c.DeliveryType.Id
+                },
+                Vendor = new VendorsDTO
+                {
+                    Name = c.Vendor.Name,
+                    Id = c.Vendor.Id
+
+                },
+
+            });
+        }
     }
 }
 

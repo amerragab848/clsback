@@ -29,7 +29,14 @@ namespace TrainingCenterManagmentSystem.Web.Controllers
            var courses= course.GetAllCourse().ToList();
             return Ok( courses);
         }
-       
+        [HttpPost]
+        [Route("GetAllCoursesPaging")]
+        public ActionResult<CoursesDTO> GetAllCoursesPaging(int pageNumber,int pageSize)
+        {
+
+            var courses = course.GetAllCourse(pageNumber, pageSize).ToList();
+            return Ok(courses);
+        }
         [HttpPost]
         [Route("CoursesPagingFilter")]
         public async Task<ActionResult<CoursesDTO>> GetAllCourses(CourseFilterDto coursesDTO)
